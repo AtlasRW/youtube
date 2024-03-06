@@ -1,5 +1,5 @@
-use crate::gui::Browser;
-use std::{fs::remove_file, path::PathBuf};
+pub use crate::gui::Browser;
+pub use std::{fs::remove_file, path::PathBuf};
 pub use youtube_dl::{download_yt_dlp, model::*, YoutubeDl};
 
 #[tokio::main]
@@ -19,7 +19,7 @@ pub fn download(
 ) {
     let result = YoutubeDl::new(url)
         .extra_arg(format!(
-            "--cookies-from-browser={}",
+            "--cookies-from-browser={:}",
             match browser {
                 Browser::Safari => "safari",
                 Browser::Chrome => "chrome",

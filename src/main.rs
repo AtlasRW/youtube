@@ -2,6 +2,7 @@
 
 pub mod downloader;
 pub mod gui;
+pub mod icon;
 
 fn main() -> Result<(), gui::Error> {
     env_logger::init();

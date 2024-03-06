@@ -1,10 +1,9 @@
-pub extern crate eframe;
-use crate::downloader;
+pub use crate::downloader;
+pub use crate::icon;
 pub use eframe::egui::{
-    CentralPanel, Context, CursorIcon, OpenUrl, RichText, Ui, ViewportBuilder, ViewportCommand,
-    Window,
+    CentralPanel, Color32, Context, CursorIcon, IconData, OpenUrl, RichText, Ui, ViewportBuilder,
+    ViewportCommand, Window,
 };
-use eframe::egui::{Color32, IconData};
 pub use eframe::{egui, run_native, App, Error, Frame, NativeOptions};
 
 // #[derive(PartialEq)]
@@ -154,9 +153,13 @@ pub fn options() -> NativeOptions {
     NativeOptions {
         viewport: ViewportBuilder::default()
             .with_inner_size([335.0, 150.0])
-            // .with_icon()
             .with_min_inner_size([335.0, 150.0])
-            .with_max_inner_size([335.0, 150.0]),
+            .with_max_inner_size([335.0, 150.0])
+            .with_icon(IconData {
+                rgba: icon::get(),
+                height: 128,
+                width: 128,
+            }),
         ..Default::default()
     }
 }
