@@ -1,54 +1,57 @@
-pub use crate::gui::Browser;
-pub use std::{fs::remove_file, path::PathBuf};
-pub use youtube_dl::{download_yt_dlp, model::*, YoutubeDl};
+use crate::{
+    threads::{self, *},
+    types::*,
+    utils,
+};
+use std::path::PathBuf;
+use youtube_dl::{download_yt_dlp, YoutubeDl};
 
 #[tokio::main]
-pub async fn run(url: String, browser: &mut Browser, on_result: impl FnOnce(bool) -> ()) {
-    let youtube_dl = download_yt_dlp(".").await;
-    match youtube_dl {
-        Ok(mut path) => download(url, browser, &mut path, on_result),
-        Err(_) => on_result(true),
-    };
-}
-
-pub fn download(
-    url: String,
+pub async fn run(
+    url: &mut String,
     browser: &mut Browser,
-    path: &mut PathBuf,
-    on_result: impl FnOnce(bool) -> (),
+    folder: &mut PathBuf,
+    status: &mut Async<Status>,
 ) {
-    let result = YoutubeDl::new(url)
-        .extra_arg(format!(
-            "--cookies-from-browser={:}",
-            match browser {
-                Browser::Safari => "safari",
-                Browser::Chrome => "chrome",
-                Browser::Edge => "edge",
-                Browser::Firefox => "firefox",
-                Browser::Brave => "brave",
-                Browser::Opera => "opera",
-                Browser::Vivaldi => "vivaldi",
-                Browser::Chromium => "chromium",
-            }
-        ))
-        .output_template("%(title)s.%(ext)s")
-        .youtube_dl_path(path.clone())
-        .format("best[ext=mp4]")
-        .download_to(".");
+    let mut _url = url.clone();
+    let mut _browser = browser.clone();
+    let mut _folder = folder.clone();
+    let mut _status = status.clone();
 
-    match result {
-        Ok(_) => on_result(false),
-        Err(_) => on_result(true),
-    }
+    let youtube_dl = download_yt_dlp(".").await;
 
-    clean(path);
+    // threads::execute(async move {
+    // let result = download(_url, _browser, _folder).await;
+    // match result {
+    //     Ok(_) => _status.set(Status::Done),
+    //     Err(_) => _status.set(Status::Error),
+    // }
+    // match youtube_dl {
+    //     Ok(_) => _status.set(Status::Done),
+    //     Err(_) => _status.set(Status::Error),
+    // }
+    // });
 }
 
-pub fn clean(path: &mut PathBuf) {
-    let result = remove_file(path);
+pub async fn download(
+    url: String,
+    browser: Browser,
+    folder: PathBuf,
+) -> Result<(), youtube_dl::Error> {
+    let youtube_dl = download_yt_dlp(".").await;
 
-    match result {
-        Ok(_) => (),
-        Err(_) => (),
+    YoutubeDl::new(url.to_owned())
+        .output_template("%(title)s.%(ext)s")
+        .youtube_dl_path(youtube_dl.unwrap())
+        .extra_arg(cookies_from_browser(browser))
+        .format("best[ext=mp4]")
+        .download_to_async(folder)
+        .await
+}
+
+pub fn cookies_from_browser(browser: Browser) -> String {
+    match browser {
+        Browser::None => String::from("--no-cookies-from-browser"),
+        _ => format!("--cookies-from-browser={:}", browser.as_lower()),
     }
 }

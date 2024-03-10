@@ -1,4 +1,141 @@
-pub fn get() -> Vec<u8> {
+use crate::types::Capitalizable;
+use eframe::egui::{
+    Button, CentralPanel, Color32, Context, CursorIcon, ProgressBar, RichText, TextEdit, Ui,
+    WidgetText,
+};
+use std::marker::Copy;
+use strum::IntoEnumIterator;
+
+pub fn central_panel(ctx: &Context, ui: impl FnOnce(&mut Ui) -> ()) {
+    CentralPanel::default().show(ctx, ui);
+}
+
+pub fn set_cursor(ctx: &Context, condition: bool, cursor_icon: CursorIcon) {
+    if condition {
+        ctx.set_cursor_icon(cursor_icon)
+    }
+}
+
+pub fn refresh(ctx: &Context) {
+    ctx.request_repaint()
+}
+
+pub fn column(ui: &mut Ui, callback: impl FnOnce(&mut Ui) -> ()) {
+    ui.vertical_centered_justified(callback);
+}
+
+pub fn row(ui: &mut Ui, callback: impl FnOnce(&mut Ui) -> ()) {
+    ui.horizontal_wrapped(callback);
+}
+
+pub fn title(ui: &mut Ui, text: impl Into<String>, description: impl Into<WidgetText>) {
+    ui.label(RichText::new(text).strong().underline())
+        .on_hover_cursor(CursorIcon::Help)
+        .on_hover_text_at_pointer(description);
+}
+
+pub fn text_edit(ui: &mut Ui, enabled: bool, current: &mut String) {
+    ui.add_enabled_ui(enabled, |ui| {
+        ui.add_sized(
+            ui.available_size_before_wrap(),
+            TextEdit::singleline(current),
+        );
+    });
+}
+
+pub fn browse_button(
+    ui: &mut Ui,
+    text: impl Into<String>,
+    description: impl Into<WidgetText>,
+    enabled: bool,
+    mut on_click: impl FnMut(&mut Ui) -> (),
+) {
+    ui.add_enabled_ui(enabled, |ui| {
+        if ui
+            .add(Button::new(RichText::new(text)))
+            .on_hover_text_at_pointer(description)
+            .on_hover_cursor(CursorIcon::PointingHand)
+            .clicked()
+        {
+            on_click(ui);
+        }
+    });
+}
+
+pub fn download_button(
+    ui: &mut Ui,
+    height: u8,
+    text: impl Into<String>,
+    fill_color: Color32,
+    enabled: bool,
+    mut on_click: impl FnMut(&mut Ui) -> (),
+) {
+    ui.add_enabled_ui(enabled, |ui| {
+        if ui
+            .add_sized(
+                [ui.available_width(), f32::from(height)],
+                Button::new(RichText::new(text).strong().color(Color32::BLACK).heading())
+                    .fill(fill_color),
+            )
+            .on_hover_cursor(CursorIcon::PointingHand)
+            .clicked()
+        {
+            on_click(ui);
+        }
+    });
+}
+
+pub fn select<Value>(
+    ui: &mut Ui,
+    enabled: bool,
+    current: &mut Value,
+    text_formatter: impl Fn(Value) -> &'static str,
+) where
+    Value: IntoEnumIterator + PartialEq + Capitalizable + Copy,
+{
+    ui.add_enabled_ui(enabled, |ui| {
+        for value in Value::iter() {
+            ui.selectable_value(current, value, text_formatter(value))
+                .on_hover_cursor(CursorIcon::PointingHand);
+        }
+    });
+}
+
+pub fn progress_bar(
+    ctx: &Context,
+    ui: &mut Ui,
+    in_progress: bool,
+    progress: &mut u8,
+    height: u8,
+    color: Color32,
+) {
+    if in_progress {
+        ui.add(
+            ProgressBar::new(f32::from(*progress) / 100.0)
+                .desired_height(f32::from(height) / 10.0)
+                .animate(false)
+                .fill(color),
+        );
+        if *progress < 100 {
+            *progress += 1
+        } else {
+            *progress = 0
+        };
+        refresh(ctx)
+    }
+}
+
+pub fn separator(ui: &mut Ui, amount: u8) {
+    ui.add_space(f32::from(amount) / 2.0);
+    ui.separator();
+    ui.add_space(f32::from(amount) / 2.0);
+}
+
+pub fn space(ui: &mut Ui, amount: u8) {
+    ui.add_space(f32::from(amount));
+}
+
+pub fn icon() -> Vec<u8> {
     [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

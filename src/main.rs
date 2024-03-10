@@ -1,14 +1,17 @@
 #![windows_subsystem = "windows"]
 
+pub mod app;
+pub mod components;
 pub mod downloader;
-pub mod gui;
-pub mod icon;
+pub mod threads;
+pub mod types;
+pub mod utils;
 
-fn main() -> Result<(), gui::Error> {
+fn main() -> Result<(), eframe::Error> {
     env_logger::init();
-    gui::run_native(
+    eframe::run_native(
         "YouTube Downloader",
-        gui::options(),
-        Box::new(|_cc| Box::<gui::APP>::default()),
+        app::options(),
+        Box::new(|_| Box::<app::APP>::default()),
     )
 }
