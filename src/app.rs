@@ -16,23 +16,12 @@ pub struct APP {
 impl Default for APP {
     fn default() -> Self {
         Self {
-            url: String::from(
-                // "https://www.youtube.com/watch?v=EC-O35VVC8s",
-                "https://www.youtube.com/playlist?list=PLwpsV7kne6SmTia9UvZUhPV2IPDKFG9iN",
-            ),
-            folder: PathBuf::from("/Users/raphael/danae/youtube"),
+            url: String::from(""),
+            folder: PathBuf::from("."),
+            browser: Browser::None,
             status: threads::Async::new(Status::None),
-            browser: Browser::Brave,
             progress: 0,
         }
-        // Self {
-        //     url: String::from("",
-        //     ),
-        //     folder: PathBuf::from("."),
-        //     browser: Browser::None,
-        //     status: Status::None,
-        //     progress: 0,
-        // }
     }
 }
 
@@ -107,7 +96,8 @@ impl App for APP {
 pub fn options() -> NativeOptions {
     NativeOptions {
         viewport: ViewportBuilder::default()
-            .with_inner_size([335.0, 260.0])
+            // .with_inner_size([335.0, 260.0])
+            .with_inner_size([335.0, 250.0])
             .with_icon(IconData {
                 rgba: components::icon(),
                 height: 128,

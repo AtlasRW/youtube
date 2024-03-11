@@ -3,7 +3,6 @@ use futures::Future;
 use std::{
     fmt::Debug,
     sync::{Arc, Mutex},
-    thread,
 };
 
 #[derive(Debug, Clone)]
@@ -27,14 +26,6 @@ impl<T: Debug + Copy + Send + 'static> GetterSetter<T> for Async<T> {
     }
 }
 
-pub fn exec<F: FnOnce() -> () + Send + 'static>(f: F) {
-    thread::spawn(f);
-}
-
-pub fn execute<F: Future<Output = ()> + Send + 'static>(f: F) {
-    tokio::spawn(f);
-}
-
-pub fn execute_sync<F: FnOnce() -> () + Send + 'static>(f: F) {
-    thread::spawn(move || f());
+pub fn execute<F: Future<Output = ()> + Send + 'static>(f: F) -> tokio::task::JoinHandle<()> {
+    tokio::spawn(f)
 }
