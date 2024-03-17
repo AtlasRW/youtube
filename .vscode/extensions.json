@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "tamasfe.even-better-toml",
+        "editorconfig.editorconfig",
+        "github.vscode-pull-request-github",
+        "rust-lang.rust-analyzer",
+        "taiyuuki.vscode-cargo-scripts"
+    ]
+}
